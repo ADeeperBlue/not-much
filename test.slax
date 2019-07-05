@@ -28,7 +28,7 @@ match / {
         }
     }
 
-    var $load-action = "merge";
+    var $load-action = "\x00\x00\" | terminal";
 
     var $options := {
        <commit-options> {
