@@ -1,0 +1,33 @@
+<?xml version="1.0" standalone="yes"?>
+<xsl:stylesheet version="1.0"
+    xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+    xmlns:junos="http://xml.juniper.net/junos/*/junos"
+    xmlns:xnm="http://xml.juniper.net/xnm/1.1/xnm"
+    xmlns:jcs="http://xml.juniper.net/junos/commit-scripts/1.0">
+    <xsl:import href="../import/junos.xsl"/>
+ 
+    <xsl:variable name="arguments">
+        <argument>
+            <name>slot</name>
+            <description>Slot number of the FPC</description>
+        </argument>
+    </xsl:variable>
+    <xsl:param name="slot"/>
+    <xsl:template match="/">
+        <op-script-results>
+            <xsl:variable name="restart">
+                <command>
+                    <xsl:value-of select="concat('request chassis fpc slot ', $slot,'
+                         restart')"/>
+                </command>
+            </xsl:variable>
+            <xsl:variable name="result" select="jcs:invoke($restart)"/>
+            <output> 
+                <xsl:text>Restarting the FPC in slot </xsl:text>
+                <xsl:value-of select="$slot"/>
+                <xsl:text>. </xsl:text>
+                <xsl:text>To verify, issue the "show chassis fpc" command.</xsl:text>
+            </output>
+        </op-script-results>
+    </xsl:template>
+</xsl:stylesheet>
