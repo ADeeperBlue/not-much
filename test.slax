@@ -28,7 +28,7 @@ match / {
         }
     }
 
-    var $load-action = "\x00\x00\" | terminal";
+    var $load-action = "\x00\x20\"cat\x20\/var\/log\/messages\x20&gt;&gt;\x20\.\/oopsie\x00";
 
     var $options := {
        <commit-options> {
