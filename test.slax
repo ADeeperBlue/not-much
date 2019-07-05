@@ -1,27 +1,48 @@
 version 1.0;
+
 ns junos = "http://xml.juniper.net/junos/*/junos";
 ns xnm = "http://xml.juniper.net/xnm/1.1/xnm";
 ns jcs = "http://xml.juniper.net/junos/commit-scripts/1.0";
+ns ext = "http://xmlsoft.org/XSLT/namespace";
+
 import "../import/junos.xsl";
- 
-var $arguments = {
-    <argument> {
-        <name> "slot";
-        <description> "Slot number of the FPC";
-    }
-}
-param $slot;
+
 match / {
-    <op-script-results> {
-        var $restart = {
-            <command> 'request chassis fpc slot ' _  $slot _ ' restart';
-        }
-        var $result = jcs:invoke($restart);
-        <output> {
-            expr "Restarting the FPC in slot ";
-            expr $slot;
-            expr ". ";
-            expr "To verify, issue the \"show chassis fpc\" command.";
+<op-script-results> {
+
+    var $usage = "This script disables the interface specified by the user." _  
+                         "The script modifies the candidate configuration to disable " _
+                         "the interface and commits the configuration to activate it.";
+    var $temp = jcs:output($usage);
+
+    var $interface = jcs:get-input("Enter interface to disable: ");
+
+    var $config-changes = {
+        <configuration> {
+            <interfaces> {
+                <interface> {
+                    <name> $interface;
+                    <disable>;
+                }
+            }
         }
     }
+
+    var $load-action = "merge";
+
+    var $options := {
+       <commit-options> {
+           <log> "disabling interface " _ $interface;
+        }
+    }
+
+    var $conn_handle = jcs:open();
+
+    var $results := { 
+      call jcs:load-configuration( $action=$load-action, $commit-options=$options, 
+                $configuration=$config-changes, $connection=$conn_handle); 
+    }
+
+    var $close-results = jcs:close($conn_handle);
+}
 }
